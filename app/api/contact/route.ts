@@ -2,8 +2,17 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { contactSchema } from "@/lib/validators";
 import { sendContactNotification } from "@/lib/resend";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  if (!checkRateLimit(`contact:${ip}`, 5, 60_000)) {
+    return NextResponse.json(
+      { success: false, message: "Too many requests. Please wait a moment." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
 

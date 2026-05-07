@@ -6,17 +6,21 @@ export async function GET(request: NextRequest) {
     const supabase = createServiceClient();
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
+    const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "100"), 1), 200);
+    const page  = Math.max(parseInt(searchParams.get("page") || "1"), 1);
+    const offset = (page - 1) * limit;
 
     let query = supabase
       .from("gallery_images")
-      .select("*")
-      .order("sort_order", { ascending: true });
+      .select("id, image_url, alt_text, category, sort_order", { count: "exact" })
+      .order("sort_order", { ascending: true })
+      .range(offset, offset + limit - 1);
 
     if (category) {
       query = query.eq("category", category);
     }
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
     if (error) {
       console.error("Failed to fetch gallery:", error);
@@ -26,7 +30,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, images: data });
+    return NextResponse.json({
+      success: true,
+      images: data,
+      pagination: { page, limit, total: count ?? 0 },
+    });
   } catch (error) {
     console.error("Gallery API error:", error);
     return NextResponse.json(

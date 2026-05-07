@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { bookTourSchema } from "@/lib/validators";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import {
   sendBookingConfirmation,
   sendBookingNotification,
 } from "@/lib/resend";
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  if (!checkRateLimit(`book-tour:${ip}`, 3, 60_000)) {
+    return NextResponse.json(
+      { success: false, message: "Too many requests. Please wait a moment." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
 
