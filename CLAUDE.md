@@ -34,30 +34,32 @@ Built with **Next.js 14 (App Router)**. Frontend, backend API routes, and admin 
 │                    NEXT.JS SERVER (Vercel)                          │
 │                                                                     │
 │  middleware.ts — protects /admin/* via Supabase session check       │
+│  lib/rate-limit.ts — in-process sliding-window rate limiter        │
 │                                                                     │
 │  app/api/                                                           │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐               │
-│  │ /api/contact │ │/api/book-tour│ │/api/availabil│               │
-│  │  POST        │ │  POST        │ │  GET         │               │
-│  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘               │
-│         │                │                │                        │
-│  ┌──────┴────────────────┴────────────────┴───────┐               │
-│  │        Zod Validation (lib/validators.ts)       │               │
-│  └──────┬────────────────┬────────────────────────┘               │
-│         ▼                ▼                                         │
-│  ┌─────────────┐  ┌─────────────┐                                 │
-│  │  Supabase   │  │   Resend    │                                 │
-│  │  Client     │  │   Client    │                                 │
-│  │ (lib/)      │  │ (lib/)      │                                 │
-│  └──────┬──────┘  └──────┬──────┘                                 │
-└─────────┼────────────────┼─────────────────────────────────────────┘
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────┐  │
+│  │ /api/contact │ │/api/book-tour│ │/api/availabil│ │/api/ping │  │
+│  │  POST        │ │  POST        │ │  GET         │ │  GET     │  │
+│  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘ └────┬─────┘  │
+│         │                │                │               │        │
+│  ┌──────┴────────────────┴────────────────┴───────┐       │        │
+│  │        Zod Validation (lib/validators.ts)       │  Cron │        │
+│  └──────┬────────────────┬────────────────────────┘       │        │
+│         ▼                ▼                                 ▼        │
+│  ┌─────────────┐  ┌─────────────┐                                  │
+│  │  Supabase   │  │   Resend    │                                  │
+│  │  Client     │  │   Client    │                                  │
+│  │ (lib/)      │  │ (lib/)      │                                  │
+│  └──────┬──────┘  └──────┬──────┘                                  │
+└─────────┼────────────────┼──────────────────────────────────────────┘
           ▼                ▼
 ┌──────────────────┐ ┌──────────────────┐
 │    SUPABASE      │ │     RESEND       │
 │  PostgreSQL DB   │ │  Transactional   │
 │  Auth (admin)    │ │  Email Service   │
-│  Storage (imgs)  │ │                  │
-└──────────────────┘ └──────────────────┘
+│  Storage (imgs)  │ │  From: booking@  │
+└──────────────────┘ │  kopiladaycare   │
+                     └──────────────────┘
 ```
 
 
@@ -87,9 +89,10 @@ Built with **Next.js 14 (App Router)**. Frontend, backend API routes, and admin 
 - **Supabase** — PostgreSQL database + auth + storage
 - **Resend** — transactional email (booking confirmations, contact form forwarding)
 - **Vercel** — hosting (production: kdc-seven.vercel.app → kopiladaycare.com)
+- **Vercel Cron** — daily `/api/ping` at 8 AM UTC to keep Supabase free tier active
 
 ### Testing
-- **Vitest** — 242-test security test suite in `tests/security/`
+- **Vitest** — security test suite in `tests/security/`
 - Run with `npm test`
 
 
@@ -98,17 +101,20 @@ Built with **Next.js 14 (App Router)**. Frontend, backend API routes, and admin 
 ```env
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://oguvjtcvonnjvbechkjq.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...   # Browser-safe, used by client + middleware
+SUPABASE_SERVICE_ROLE_KEY=...       # Server-only, bypasses RLS
 
 # Resend (email)
-RESEND_API_KEY=...
+RESEND_API_KEY=...                  # Authenticates all outbound emails
 
-# Business email (where contact form + booking notifications go)
-OWNER_EMAIL=...
+# Business email (comma-separated for multiple recipients)
+OWNER_EMAIL=kopiladcc@yahoo.com,arajmaharjan@gmail.com
 
 # App
 NEXT_PUBLIC_SITE_URL=https://kopiladaycare.com
+
+# Cron job authentication
+CRON_SECRET=...                     # Bearer token checked by /api/ping
 ```
 
 All vars are set in Vercel for both `production` and `preview` environments.
@@ -122,7 +128,7 @@ Local values live in `.env.local` (gitignored).
 | Route | Status | Notes |
 |-------|--------|-------|
 | `/` | ✅ Live | Hero, meals, curriculum, team preview, testimonials |
-| `/our-approach` | ✅ Live | Interactive tabs, daily routine, lunch menu |
+| `/our-approach` | ✅ Live | 3-slide auto-rotating carousel (15s each) |
 | `/our-team` | ✅ Live | Basanti & Indra profile cards |
 | `/contact` | ✅ Live | Bento grid, map embed, Street View, contact form |
 | `/book-a-tour` | ✅ Live | Calendar picker, availability API integration |
@@ -135,16 +141,17 @@ Local values live in `.env.local` (gitignored).
 
 ### API Routes — All Implemented
 
-| Route | Method | Auth | Description |
-|-------|--------|------|-------------|
-| `/api/contact` | POST | Public | Saves inquiry, emails owner |
-| `/api/book-tour` | POST | Public | Saves booking, emails parent + owner |
-| `/api/availability` | GET | Public | Returns available slots for a date |
-| `/api/bookings` | GET | Admin | List all bookings |
-| `/api/bookings/[id]` | PATCH/DELETE | Admin | Update/delete booking |
-| `/api/gallery` | GET/POST | GET public, POST admin | List/add gallery images |
-| `/api/gallery/[id]` | PATCH/DELETE | Admin | Update/delete gallery image |
-| `/api/upload` | POST | Admin | Upload image to Supabase Storage |
+| Route | Method | Auth | Rate Limit | Description |
+|-------|--------|------|------------|-------------|
+| `/api/contact` | POST | Public | 5/IP/min | Saves inquiry, emails owner |
+| `/api/book-tour` | POST | Public | 3/IP/min | Saves booking, emails parent + owner |
+| `/api/availability` | GET | Public | 30/IP/min | Returns available slots for a date |
+| `/api/bookings` | GET | Admin | — | List all bookings (paginated) |
+| `/api/bookings/[id]` | PATCH/DELETE | Admin | — | Update/delete booking |
+| `/api/gallery` | GET/POST | GET public, POST admin | — | List/add gallery images (paginated) |
+| `/api/gallery/[id]` | PATCH/DELETE | Admin | — | Update/delete gallery image |
+| `/api/upload` | POST | Admin | — | Upload image to Supabase Storage |
+| `/api/ping` | GET | CRON_SECRET | — | Health check (Vercel Cron, daily 8AM UTC) |
 
 
 ## Project Structure
@@ -175,14 +182,15 @@ KDC/
 │       ├── bookings/[id]/route.ts
 │       ├── gallery/route.ts
 │       ├── gallery/[id]/route.ts
-│       └── upload/route.ts
+│       ├── upload/route.ts
+│       └── ping/route.ts             # Vercel Cron health check
 ├── components/
 │   ├── layout/
 │   │   ├── Navbar.tsx                # Fixed glassmorphism nav, flower bud logo
 │   │   ├── Footer.tsx
 │   │   ├── ContactSection.tsx        # Shared "Ready to Visit?" CTA block
 │   │   └── PublicShell.tsx
-│   ├── approach/ApproachTabs.tsx
+│   ├── approach/ApproachTabs.tsx     # 3-slide carousel (Play/Curriculum/Food)
 │   ├── book-tour/BookTourForm.tsx
 │   ├── contact/ContactForm.tsx
 │   ├── gallery/GalleryGrid.tsx
@@ -198,8 +206,11 @@ KDC/
 │   │   └── types.ts                  # TypeScript types for all DB tables
 │   ├── resend.ts                     # Email client + HTML-escaped templates
 │   ├── validators.ts                 # Zod schemas: bookTourSchema, contactSchema
+│   ├── rate-limit.ts                 # In-process sliding-window rate limiter
 │   └── utils.ts
 ├── middleware.ts                     # Edge auth guard for /admin/*
+├── vercel.json                       # Cron job config (daily /api/ping at 8AM UTC)
+├── next.config.js                    # Security headers (CSP, HSTS, X-Frame, etc.)
 ├── tests/security/
 │   ├── validators.test.ts            # Zod schema tests (length, format, injection)
 │   ├── escaping.test.ts              # esc() HTML escaping + resend.ts source scan
@@ -215,8 +226,6 @@ KDC/
 ├── tsconfig.json
 ├── tsconfig.test.json
 ├── tailwind.config.ts
-├── next.config.js
-├── middleware.ts
 ├── .env.local                        # Local secrets (gitignored)
 ├── .env.local.example
 ├── CLAUDE.md
@@ -233,7 +242,19 @@ KDC/
 
 ### HTML Escaping (`lib/resend.ts`)
 - `esc()` helper escapes `& < > " '` before any user data enters email HTML
-- All 11 user-controlled fields are wrapped in `esc()` — verified by escaping.test.ts
+- All user-controlled fields are wrapped in `esc()` — verified by `escaping.test.ts`
+
+### Rate Limiting (`lib/rate-limit.ts`)
+- In-process sliding-window limiter (per-IP, per-endpoint)
+- Contact: 5 requests/IP/minute | Book Tour: 3/IP/min | Availability: 30/IP/min
+- Returns HTTP 429 on breach
+
+### HTTP Security Headers (`next.config.js`)
+- `Content-Security-Policy` — allowlists own origin, Supabase, Google Fonts/Maps
+- `Strict-Transport-Security` — HTTPS enforced for 2 years
+- `X-Frame-Options: DENY` — prevents clickjacking
+- `X-Content-Type-Options: nosniff` — prevents MIME sniffing
+- `Permissions-Policy` — disables camera, microphone, geolocation
 
 ### Admin Auth (two layers)
 - `middleware.ts` — edge function using `@supabase/ssr` `getAll`/`setAll` cookie API; redirects to `/admin/login` on missing session or any error
@@ -245,6 +266,10 @@ KDC/
 
 ### Gallery URL Validation (`app/api/gallery/route.ts`)
 - Image URLs must start with `https://` before DB insert
+
+### Cron Endpoint (`app/api/ping/route.ts`)
+- Verifies `Authorization: Bearer <CRON_SECRET>` header on every request
+- Returns 401 for any unauthenticated caller
 
 
 ## Design System
@@ -462,17 +487,16 @@ CREATE POLICY "Public can insert mailing list" ON mailing_list FOR INSERT WITH C
 ## Deployment
 
 - **Platform:** Vercel (project: `kdc`, team: `arajmaharjans-projects`)
-- **Production URL:** kdc-seven.vercel.app → kopiladaycare.com (DNS propagating)
+- **Production URL:** kopiladaycare.com (alias: kdc-seven.vercel.app)
 - **Branch:** `main` only — single branch, single Supabase DB
 - **Deploy command:** `vercel --prod`
 
-### DNS (Squarespace → Vercel)
-Two A records required in Squarespace DNS settings:
+### DNS (Vercel nameservers)
+DNS is fully managed by Vercel. Nameservers:
+- `ns1.vercel-dns.com`
+- `ns2.vercel-dns.com`
 
-| Type | Host | Value |
-|------|------|-------|
-| A | `@` | `76.76.21.21` |
-| A | `www` | `76.76.21.21` |
+These replaced Squarespace DNS to allow full DNS control (A records, SPF, DKIM, etc.).
 
 
 ## DEVELOPMENT RULES
@@ -490,6 +514,10 @@ Two A records required in Squarespace DNS settings:
 6. **Admin auth:** Always call `requireAdmin(request)` as the first line in every admin API route. The middleware provides page-level protection; `requireAdmin()` provides data-level protection.
 
 7. **Never commit `.env.local`** — it contains live Supabase and Resend credentials.
+
+8. **Rate limiting:** New public API routes should use `checkRateLimit()` from `lib/rate-limit.ts`.
+
+9. **Email from address:** All emails send from `booking@kopiladaycare.com`. Do not change this.
 
 
 ## SETUP STEPS (for a new developer)
@@ -509,24 +537,31 @@ Two A records required in Squarespace DNS settings:
 ```json
 {
   "dependencies": {
-    "next": "^14.2",
-    "react": "^18.3",
-    "react-dom": "^18.3",
-    "@supabase/supabase-js": "^2.45",
-    "@supabase/ssr": "^0.5",
-    "resend": "^4.0",
-    "zod": "^3.23",
-    "date-fns": "^3.6"
+    "next": "^14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@supabase/supabase-js": "^2.105.3",
+    "@supabase/ssr": "^0.10.2",
+    "resend": "^4.0.0",
+    "zod": "^3.23.0",
+    "date-fns": "^3.6.0"
   },
   "devDependencies": {
-    "typescript": "^5.5",
-    "@types/react": "^18.3",
-    "@types/node": "^20",
-    "tailwindcss": "^3.4",
-    "postcss": "^8.4",
-    "autoprefixer": "^10.4",
-    "vitest": "^2.0",
-    "@vitest/coverage-v8": "^2.0"
+    "typescript": "^5.5.0",
+    "@types/react": "^18.3.0",
+    "@types/node": "^20.14.0",
+    "tailwindcss": "^3.4.13",
+    "postcss": "^8.5.14",
+    "autoprefixer": "^10.4.20",
+    "vitest": "^4.1.5",
+    "@vitest/coverage-v8": "^4.1.5"
   }
 }
 ```
+
+## KNOWN DEFERRED ITEMS
+
+- **Next.js 14 → 15 upgrade**: Low priority (low traffic). When ready: update `next`, `react`, `react-dom`, `@types/react` to v15/v19, and fix `params` in dynamic route handlers to be awaited.
+- **Gallery page**: Placeholder. Needs real photos from Basanti uploaded via `/admin/gallery`.
+- **Testimonials page**: Placeholder. Needs real testimonials entered via Supabase or a future admin UI.
+- **Resend domain verification**: `booking@kopiladaycare.com` requires SPF/DKIM DNS records verified in the Resend dashboard. Verify at resend.com → Domains.

@@ -27,6 +27,10 @@ yarn-error.log*
 .env.*
 !.env.local.example
 
+# runbook (sensitive ops doc — keep local only)
+kopila_storybook/runbook.html
+kopila_storybook/KDC-Runbook.pdf
+
 # vercel
 .vercel
 

@@ -1,40 +1,32 @@
-# Kopila Day Care & Preschool
+# Kopila Day Care — Website
 
-Website for **Kopila Day Care and Preschool** — a licensed home-based day care and preschool in Hayward, CA.
+Production website for Kopila Day Care and Preschool, live at [kopiladaycare.com](https://kopiladaycare.com).
 
-## Stack
+Built with Next.js 14, Supabase, Resend, and Vercel.
 
-- **Next.js 14** (App Router) · **TypeScript** · **Tailwind CSS**
-- **Supabase** — PostgreSQL database, Auth, and Storage
-- **Resend** — transactional email
-- **Vercel** — hosting
-
-## Pages
-
-| Route | Description |
-|---|---|
-| `/` | Home |
-| `/our-approach` | Philosophy and daily routine |
-| `/our-team` | Staff profiles |
-| `/contact` | Contact form, hours, and map |
-| `/book-a-tour` | Tour booking with availability calendar |
-| `/gallery` | Photo gallery |
-| `/testimonials` | Parent testimonials |
-| `/admin` | Admin portal (bookings + gallery management) |
-
-## Getting Started
+## Local Development
 
 ```bash
 cp .env.local.example .env.local
-# fill in Supabase and Resend credentials
+# fill in credentials (see CLAUDE.md § Environment Variables)
 npm install
 npm run dev
 ```
 
-Run the schema at `supabase/migrations/001_initial_schema.sql` in the Supabase SQL Editor before first use.
+Open [http://localhost:3000](http://localhost:3000).
 
-See the `devbranch` README for full setup instructions, API reference, and deployment guide.
+## Deploy
 
----
+```bash
+vercel --prod
+```
 
-**Contact:** (510) 282-6653 · kopiladcc@yahoo.com · 17040 Esteban St, Hayward, CA 94541
+## Tests
+
+```bash
+npm test
+```
+
+## Docs
+
+See [`CLAUDE.md`](./CLAUDE.md) for full architecture, database schema, API reference, security details, and setup steps.
