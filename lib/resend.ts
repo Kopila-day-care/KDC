@@ -12,8 +12,11 @@ function esc(value: string | undefined | null): string {
 const apiKey = process.env.RESEND_API_KEY;
 export const resend = apiKey ? new Resend(apiKey) : null;
 
-const OWNER_EMAIL = process.env.OWNER_EMAIL || "";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://kopilachildcare.com";
+const OWNER_EMAILS = (process.env.OWNER_EMAIL || "")
+  .split(",")
+  .map((e) => e.trim())
+  .filter(Boolean);
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://kopiladaycare.com";
 
 export async function sendBookingConfirmation(booking: {
   parent_name: string;
@@ -54,7 +57,7 @@ export async function sendBookingNotification(booking: {
     if (!resend) return;
     await resend.emails.send({
       from: "Kopila Day Care <onboarding@resend.dev>",
-      to: OWNER_EMAIL,
+      to: OWNER_EMAILS,
       subject: `New Tour Booking — ${esc(booking.parent_name)} on ${esc(booking.booking_date)}`,
       html: `
         <h2>New Tour Booking</h2>
@@ -111,7 +114,7 @@ export async function sendContactNotification(inquiry: {
     if (!resend) return;
     await resend.emails.send({
       from: "Kopila Day Care <onboarding@resend.dev>",
-      to: OWNER_EMAIL,
+      to: OWNER_EMAILS,
       subject: `New Inquiry from ${esc(inquiry.name)}${inquiry.subject ? ` — ${esc(inquiry.subject)}` : ""}`,
       html: `
         <h2>New Contact Form Inquiry</h2>
