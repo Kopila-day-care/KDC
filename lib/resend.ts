@@ -27,7 +27,7 @@ export async function sendBookingConfirmation(booking: {
   try {
     if (!resend) return;
     await resend.emails.send({
-      from: "Kopila Day Care <onboarding@resend.dev>",
+      from: "Kopila Day Care <booking@kopiladaycare.com>",
       to: booking.email,
       subject: "Your Tour at Kopila Day Care is Booked!",
       html: `
@@ -56,7 +56,7 @@ export async function sendBookingNotification(booking: {
   try {
     if (!resend) return;
     await resend.emails.send({
-      from: "Kopila Day Care <onboarding@resend.dev>",
+      from: "Kopila Day Care <booking@kopiladaycare.com>",
       to: OWNER_EMAILS,
       subject: `New Tour Booking — ${esc(booking.parent_name)} on ${esc(booking.booking_date)}`,
       html: `
@@ -84,7 +84,7 @@ export async function sendBookingCancellation(booking: {
   try {
     if (!resend) return;
     await resend.emails.send({
-      from: "Kopila Day Care <onboarding@resend.dev>",
+      from: "Kopila Day Care <booking@kopiladaycare.com>",
       to: booking.email,
       subject: "Tour Booking Update — Kopila Day Care",
       html: `
@@ -113,7 +113,7 @@ export async function sendContactNotification(inquiry: {
   try {
     if (!resend) return;
     await resend.emails.send({
-      from: "Kopila Day Care <onboarding@resend.dev>",
+      from: "Kopila Day Care <booking@kopiladaycare.com>",
       to: OWNER_EMAILS,
       subject: `New Inquiry from ${esc(inquiry.name)}${inquiry.subject ? ` — ${esc(inquiry.subject)}` : ""}`,
       html: `
