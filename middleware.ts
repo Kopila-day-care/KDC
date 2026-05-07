@@ -6,23 +6,31 @@ export async function middleware(request: NextRequest) {
     request: { headers: request.headers },
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get: (name: string) => request.cookies.get(name)?.value,
-        set: (name: string, value: string, options: Record<string, unknown>) => {
-          request.cookies.set({ name, value, ...options });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove: (name: string, options: Record<string, unknown>) => {
-          request.cookies.set({ name, value: "", ...options });
-          response.cookies.set({ name, value: "", ...options });
-        },
-      },
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // If env vars are missing (e.g. preview deployment without vars configured),
+  // redirect to login rather than crashing with MIDDLEWARE_INVOCATION_FAILED.
+  if (!supabaseUrl || !supabaseAnonKey) {
+    if (request.nextUrl.pathname !== "/admin/login") {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
-  );
+    return response;
+  }
+
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get: (name: string) => request.cookies.get(name)?.value,
+      set: (name: string, value: string, options: Record<string, unknown>) => {
+        request.cookies.set({ name, value, ...options });
+        response.cookies.set({ name, value, ...options });
+      },
+      remove: (name: string, options: Record<string, unknown>) => {
+        request.cookies.set({ name, value: "", ...options });
+        response.cookies.set({ name, value: "", ...options });
+      },
+    },
+  });
 
   const { data: { user } } = await supabase.auth.getUser();
 
