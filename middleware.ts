@@ -2,32 +2,50 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next({
+  let response = NextResponse.next({
     request: { headers: request.headers },
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    if (request.nextUrl.pathname !== "/admin/login") {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+    return response;
+  }
+
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
-        get: (name: string) => request.cookies.get(name)?.value,
-        set: (name: string, value: string, options: Record<string, unknown>) => {
-          request.cookies.set({ name, value, ...options });
-          response.cookies.set({ name, value, ...options });
+        getAll() {
+          return request.cookies.getAll();
         },
-        remove: (name: string, options: Record<string, unknown>) => {
-          request.cookies.set({ name, value: "", ...options });
-          response.cookies.set({ name, value: "", ...options });
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+          response = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
         },
       },
+    });
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user && request.nextUrl.pathname !== "/admin/login") {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user && request.nextUrl.pathname !== "/admin/login") {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+  } catch (err) {
+    console.error("[middleware] auth check failed:", err);
+    if (request.nextUrl.pathname !== "/admin/login") {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
   }
 
   return response;
