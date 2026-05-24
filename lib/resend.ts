@@ -74,7 +74,7 @@ export async function sendBookingConfirmation(booking: {
     from: "Kopila Day Care <booking@kopiladaycare.com>",
     replyTo: "kopiladcc@yahoo.com",
     to: booking.email,
-    subject: `Your Tour is Confirmed — Kopila Day Care (${esc(booking.booking_date)})`,
+    subject: `Your Tour is Confirmed at Kopila Day Care — ${booking.booking_date}`,
     html: emailWrapper(`
       <h2 style="margin:0 0 8px;font-size:22px;color:#3c674b;">Hi ${esc(booking.parent_name)}! &#127801;</h2>
       <p style="margin:0 0 20px;font-size:15px;color:#4a4440;line-height:1.6;">
@@ -120,7 +120,7 @@ export async function sendBookingNotification(booking: {
     from: "Kopila Day Care <booking@kopiladaycare.com>",
     replyTo: booking.email,
     to: OWNER_EMAILS,
-    subject: `&#128197; New Tour Request — ${esc(booking.parent_name)} on ${esc(booking.booking_date)}`,
+    subject: `New Tour Request from ${booking.parent_name} on ${booking.booking_date}`,
     html: emailWrapper(`
       <h2 style="margin:0 0 8px;font-size:22px;color:#3c674b;">New Tour Booking &#127801;</h2>
       <p style="margin:0 0 20px;font-size:15px;color:#4a4440;line-height:1.6;">
@@ -175,7 +175,7 @@ export async function sendBookingCancellation(booking: {
     from: "Kopila Day Care <booking@kopiladaycare.com>",
     replyTo: "kopiladcc@yahoo.com",
     to: booking.email,
-    subject: `Tour Booking Update — Kopila Day Care`,
+    subject: `Tour Booking Update from Kopila Day Care`,
     html: emailWrapper(`
       <h2 style="margin:0 0 8px;font-size:22px;color:#835339;">Hi ${esc(booking.parent_name)},</h2>
       <p style="margin:0 0 20px;font-size:15px;color:#4a4440;line-height:1.6;">
@@ -222,7 +222,7 @@ export async function sendContactNotification(inquiry: {
     from: "Kopila Day Care <booking@kopiladaycare.com>",
     replyTo: inquiry.email,
     to: OWNER_EMAILS,
-    subject: `New Inquiry from ${esc(inquiry.name)}${inquiry.subject ? ` — ${esc(inquiry.subject)}` : ""}`,
+    subject: `New Inquiry from ${inquiry.name}${inquiry.subject ? ` — ${inquiry.subject}` : ""}`,
     html: emailWrapper(`
       <h2 style="margin:0 0 8px;font-size:22px;color:#3c674b;">New Contact Inquiry &#128140;</h2>
       <p style="margin:0 0 20px;font-size:15px;color:#4a4440;line-height:1.6;">
