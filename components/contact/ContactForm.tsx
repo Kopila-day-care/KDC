@@ -45,7 +45,7 @@ export default function ContactForm() {
 
   return (
     <section className="bg-surface-container-lowest p-10 rounded-lg shadow-sm">
-      <h3 className="font-display text-4xl text-primary mb-8">Send a Note</h3>
+      <h3 className="font-display text-4xl text-primary mb-8">Get in Touch</h3>
 
       {status === "success" && (
         <div className="mb-6 bg-primary-fixed/40 text-on-primary-container p-4 rounded-lg font-bold">

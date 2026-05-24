@@ -436,7 +436,6 @@ export default function BookTourForm() {
       phone: formData.get("phone") as string,
       booking_date: selectedDate,
       booking_time: selectedTime,
-      notes: (formData.get("notes") as string) || undefined,
     };
 
     try {
@@ -684,21 +683,6 @@ export default function BookTourForm() {
                     <option value="2-4y">2 - 4 years</option>
                     <option value="4-6y">4 - 6 years</option>
                   </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="font-label font-bold text-sm text-secondary">
-                    Notes / Questions{" "}
-                    <span className="font-normal text-on-surface-variant/60">
-                      (optional)
-                    </span>
-                  </label>
-                  <textarea
-                    name="notes"
-                    rows={4}
-                    placeholder="Anything you'd like us to know or questions for the visit..."
-                    className="w-full bg-surface-container-high border-none rounded-lg p-4 focus:ring-2 focus:ring-primary-fixed font-reading text-on-surface"
-                  />
                 </div>
 
                 {/* Summary */}
