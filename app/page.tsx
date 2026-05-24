@@ -78,8 +78,8 @@ export default function HomePage() {
       </section>
 
       {/* Section: YouTube Video — A Peek Inside Kopila */}
-      <section className="py-20 px-8 bg-surface overflow-hidden">
-        <div className="max-w-4xl mx-auto">
+      <section className="py-20 px-4 md:px-8 bg-surface overflow-hidden">
+        <div className="max-w-7xl mx-auto">
           {/* Decorative header */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-3 bg-primary-container/30 px-6 py-2 rounded-full mb-6">
@@ -89,7 +89,7 @@ export default function HomePage() {
             <h2 className="font-handwritten text-5xl md:text-7xl font-bold text-secondary leading-none mb-3">
               Come See the Magic
             </h2>
-            <p className="font-body text-on-surface-variant text-lg max-w-xl mx-auto">
+            <p className="font-body text-on-surface-variant text-lg max-w-2xl mx-auto">
               Words can only say so much — watch how our little learners spend their day at Kopila.
             </p>
           </div>
@@ -97,19 +97,19 @@ export default function HomePage() {
           {/* Video frame */}
           <div className="relative">
             {/* Decorative behind-frame blobs */}
-            <div className="absolute -top-6 -left-6 w-32 h-32 bg-secondary-container rounded-full opacity-40 blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-6 -right-6 w-40 h-40 bg-primary-container rounded-full opacity-40 blur-2xl pointer-events-none" />
+            <div className="absolute -top-8 -left-8 w-56 h-56 bg-secondary-container rounded-full opacity-30 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-primary-container rounded-full opacity-30 blur-3xl pointer-events-none" />
 
             {/* Outer decorative frame */}
-            <div className="relative bg-surface-container-low p-4 rounded-2xl shadow-xl rotate-1 hover:rotate-0 transition-transform duration-500 border-4 border-white">
+            <div className="relative bg-surface-container-low p-3 md:p-5 rounded-2xl shadow-2xl border-4 border-white">
               {/* Corner flower buds */}
-              <span className="absolute -top-4 -left-4 material-symbols-outlined text-3xl text-secondary bg-surface rounded-full p-1 shadow-md z-10">local_florist</span>
-              <span className="absolute -top-4 -right-4 material-symbols-outlined text-3xl text-primary bg-surface rounded-full p-1 shadow-md z-10">local_florist</span>
-              <span className="absolute -bottom-4 -left-4 material-symbols-outlined text-3xl text-tertiary bg-surface rounded-full p-1 shadow-md z-10">local_florist</span>
-              <span className="absolute -bottom-4 -right-4 material-symbols-outlined text-3xl text-secondary bg-surface rounded-full p-1 shadow-md z-10">local_florist</span>
+              <span className="absolute -top-5 -left-5 material-symbols-outlined text-3xl text-secondary bg-surface rounded-full p-1.5 shadow-md z-10">local_florist</span>
+              <span className="absolute -top-5 -right-5 material-symbols-outlined text-3xl text-primary bg-surface rounded-full p-1.5 shadow-md z-10">local_florist</span>
+              <span className="absolute -bottom-5 -left-5 material-symbols-outlined text-3xl text-tertiary bg-surface rounded-full p-1.5 shadow-md z-10">local_florist</span>
+              <span className="absolute -bottom-5 -right-5 material-symbols-outlined text-3xl text-secondary bg-surface rounded-full p-1.5 shadow-md z-10">local_florist</span>
 
-              {/* YouTube iframe */}
-              <div className="aspect-video rounded-xl overflow-hidden shadow-inner">
+              {/* YouTube iframe — 21:9 theater-wide aspect */}
+              <div className="w-full rounded-xl overflow-hidden shadow-inner" style={{ aspectRatio: "21/9" }}>
                 <iframe
                   src="https://www.youtube-nocookie.com/embed/uthP85DqNdk?rel=0&modestbranding=1"
                   title="A day at Kopila Day Care"
