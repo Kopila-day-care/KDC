@@ -256,13 +256,8 @@ export default function OurApproachPage() {
             Curriculum Focus
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-auto md:h-[600px]">
-            <div className="md:col-span-2 md:row-span-2 bg-secondary-container rounded-xl p-8 flex flex-col justify-end relative overflow-hidden group">
-              <img
-                className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:scale-110 transition-transform duration-700"
-                alt="Children collaborating on a craft project"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGJA47vOCW4oR4_4K31YnNnolgRG4wR-x4N33RplbjsRcbhvLrXQlXLeFUH3AIisR786bozAc9olhLq7DlY3Xkp-D2ft2-Cf4_tFVr1t_36hi6GUSdYHQoLy-5ymMIiL34vpeRBURv812X4Ccd-vCGotIWSwczqH7nnYnLltIgfgFFoAloJm-_kh6GZo7SV9kNmj7a5c5CyHf0163w2T6HGL4BRIWoANvovQAMt12TeY49f4mxjh31mWU2adDDAbcvhfjJz59JNr0"
-              />
-              <div className="relative z-10">
+            <div className="md:col-span-2 md:row-span-2 bg-secondary-container rounded-xl p-8 flex flex-col justify-end">
+              <div>
                 <span className="bg-white/80 px-4 py-1 rounded-full text-xs font-bold text-secondary uppercase tracking-widest mb-4 inline-block">
                   Core Pillar
                 </span>
