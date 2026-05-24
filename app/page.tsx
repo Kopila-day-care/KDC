@@ -123,30 +123,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Section 2: Fresh Healthy Meals */}
-      <section className="bg-surface-container-low py-24 relative overflow-hidden">
-        <div className="max-w-5xl mx-auto px-8 text-center relative z-10">
-          <span className="material-symbols-outlined text-primary-container text-6xl mb-4">
-            restaurant
-          </span>
-          <h2 className="font-display text-4xl lg:text-5xl text-primary mb-8">
-            Fresh, Healthy Meals (Made Daily)
-          </h2>
-          <div className="bg-surface p-8 lg:p-12 rounded-lg shadow-sm max-w-3xl mx-auto border-t-4 border-primary-container">
-            <p className="font-reading text-lg leading-relaxed text-on-surface-variant mb-6">
-              At Kopila, nutrition is the heartbeat of our day. Mr. Indra, our
-              dedicated chef and caregiver, prepares home-style meals that are as
-              nutritious as they are delicious. We use fresh ingredients to fuel
-              growing minds and bodies, ensuring every child develops a love for
-              healthy eating from an early age.
-            </p>
-            <div className="flex items-center justify-center gap-2 font-accent text-2xl text-soft-rose">
-              <span className="material-symbols-outlined">favorite</span>
-              Hand-cooked with love by Mr. Indra
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Section 3: Our Curriculum (Bento-ish Grid) */}
       <section className="py-24 bg-surface">
