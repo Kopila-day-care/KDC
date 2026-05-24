@@ -124,20 +124,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // Only notify the owner — confirmation email to parent is sent when admin confirms
+    // Notify the owner — must be awaited so it completes before the serverless function exits
+    // Confirmation email to parent is sent when admin confirms the booking
     try {
-      sendBookingNotification({
+      await sendBookingNotification({
         parent_name,
         email,
         phone,
         booking_date,
         booking_time,
         notes,
-      }).catch((err) => {
-        console.error("Failed to send booking notification:", err);
       });
     } catch (emailError) {
-      console.error("Failed to initiate booking notification:", emailError);
+      console.error("Failed to send booking notification:", emailError);
     }
 
     return NextResponse.json(

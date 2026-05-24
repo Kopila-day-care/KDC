@@ -46,11 +46,9 @@ export async function POST(request: Request) {
     }
 
     try {
-      sendContactNotification({ name, email, phone, subject, message }).catch(
-        (err) => console.error("Failed to send contact notification:", err)
-      );
+      await sendContactNotification({ name, email, phone, subject, message });
     } catch (emailError) {
-      console.error("Failed to initiate contact notification:", emailError);
+      console.error("Failed to send contact notification:", emailError);
     }
 
     return NextResponse.json({ success: true });
