@@ -12,7 +12,7 @@ export async function PATCH(
   try {
     const supabase = createServiceClient();
     const body = await request.json();
-    const { status } = body;
+    const { status, note } = body;
 
     if (!status || !["pending", "confirmed", "cancelled"].includes(status)) {
       return NextResponse.json(
@@ -45,6 +45,7 @@ export async function PATCH(
             email: data.email,
             booking_date: data.booking_date,
             booking_time: data.booking_time,
+            note: note || "",
           });
         } else if (status === "cancelled") {
           await sendBookingCancellation({
@@ -52,6 +53,7 @@ export async function PATCH(
             email: data.email,
             booking_date: data.booking_date,
             booking_time: data.booking_time,
+            note: note || "",
           });
         }
       } catch (emailError) {
