@@ -7,6 +7,13 @@ import { Booking } from "@/lib/supabase/types";
 const STATUS_OPTIONS = ["all", "pending", "confirmed", "cancelled"] as const;
 const FILTER_OPTIONS = ["upcoming", "past", "all"] as const;
 
+interface ActionModal {
+  bookingId: string;
+  action: "confirmed" | "cancelled";
+  parentName: string;
+  note: string;
+}
+
 export default function AdminBookingsPage() {
   const searchParams = useSearchParams();
   const initialStatus = searchParams.get("status") || "all";
@@ -16,6 +23,7 @@ export default function AdminBookingsPage() {
   const [statusFilter, setStatusFilter] = useState(initialStatus);
   const [timeFilter, setTimeFilter] = useState<string>("upcoming");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [modal, setModal] = useState<ActionModal | null>(null);
 
   const fetchBookings = useCallback(async () => {
     setLoading(true);
@@ -38,18 +46,26 @@ export default function AdminBookingsPage() {
     fetchBookings();
   }, [fetchBookings]);
 
-  const updateStatus = async (id: string, status: string) => {
-    setActionLoading(id);
+  const openModal = (booking: Booking, action: "confirmed" | "cancelled") => {
+    setModal({ bookingId: booking.id, action, parentName: booking.parent_name, note: "" });
+  };
+
+  const submitAction = async () => {
+    if (!modal) return;
+    setActionLoading(modal.bookingId);
     try {
-      const res = await fetch(`/api/bookings/${id}`, {
+      const res = await fetch(`/api/bookings/${modal.bookingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status: modal.action, note: modal.note }),
       });
       if (res.ok) {
         setBookings((prev) =>
-          prev.map((b) => (b.id === id ? { ...b, status: status as Booking["status"] } : b))
+          prev.map((b) =>
+            b.id === modal.bookingId ? { ...b, status: modal.action as Booking["status"] } : b
+          )
         );
+        setModal(null);
       }
     } catch (err) {
       console.error("Failed to update booking:", err);
@@ -173,7 +189,7 @@ export default function AdminBookingsPage() {
                       <div className="flex items-center justify-end gap-1">
                         {booking.status !== "confirmed" && (
                           <button
-                            onClick={() => updateStatus(booking.id, "confirmed")}
+                            onClick={() => openModal(booking, "confirmed")}
                             disabled={actionLoading === booking.id}
                             className="p-1.5 rounded-lg hover:bg-primary-fixed text-primary transition-colors"
                             title="Confirm"
@@ -183,7 +199,7 @@ export default function AdminBookingsPage() {
                         )}
                         {booking.status !== "cancelled" && (
                           <button
-                            onClick={() => updateStatus(booking.id, "cancelled")}
+                            onClick={() => openModal(booking, "cancelled")}
                             disabled={actionLoading === booking.id}
                             className="p-1.5 rounded-lg hover:bg-error-container text-on-surface-variant hover:text-error transition-colors"
                             title="Cancel"
@@ -236,7 +252,7 @@ export default function AdminBookingsPage() {
                 <div className="flex items-center gap-2">
                   {booking.status !== "confirmed" && (
                     <button
-                      onClick={() => updateStatus(booking.id, "confirmed")}
+                      onClick={() => openModal(booking, "confirmed")}
                       disabled={actionLoading === booking.id}
                       className="text-xs px-3 py-1.5 rounded-lg bg-primary text-on-primary hover:bg-primary/90 transition-colors"
                     >
@@ -245,7 +261,7 @@ export default function AdminBookingsPage() {
                   )}
                   {booking.status !== "cancelled" && (
                     <button
-                      onClick={() => updateStatus(booking.id, "cancelled")}
+                      onClick={() => openModal(booking, "cancelled")}
                       disabled={actionLoading === booking.id}
                       className="text-xs px-3 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors"
                     >
@@ -264,6 +280,86 @@ export default function AdminBookingsPage() {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Action modal */}
+      {modal && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            onClick={() => !actionLoading && setModal(null)}
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6">
+              {/* Modal header */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  modal.action === "confirmed" ? "bg-primary-fixed" : "bg-error-container"
+                }`}>
+                  <span className={`material-symbols-outlined text-xl ${
+                    modal.action === "confirmed" ? "text-primary" : "text-error"
+                  }`}>
+                    {modal.action === "confirmed" ? "check_circle" : "cancel"}
+                  </span>
+                </div>
+                <div>
+                  <h2 className="font-headline font-bold text-on-surface text-lg leading-tight">
+                    {modal.action === "confirmed" ? "Confirm Booking" : "Cancel Booking"}
+                  </h2>
+                  <p className="text-sm text-on-surface-variant">{modal.parentName}</p>
+                </div>
+              </div>
+
+              {/* Note textarea */}
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-on-surface mb-1.5">
+                  Message to parent
+                  <span className="text-on-surface-variant font-normal ml-1">(optional)</span>
+                </label>
+                <textarea
+                  rows={4}
+                  value={modal.note}
+                  onChange={(e) => setModal({ ...modal, note: e.target.value })}
+                  placeholder={
+                    modal.action === "confirmed"
+                      ? "e.g. Please arrive 5 minutes early. We look forward to meeting you!"
+                      : "e.g. Sorry, we need to reschedule — please book another time that works for you."
+                  }
+                  className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/50 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setModal(null)}
+                  disabled={!!actionLoading}
+                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={submitAction}
+                  disabled={!!actionLoading}
+                  className={`px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-colors flex items-center gap-2 ${
+                    modal.action === "confirmed"
+                      ? "bg-primary hover:bg-primary/90"
+                      : "bg-error hover:bg-error/90"
+                  }`}
+                >
+                  {actionLoading ? (
+                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                  ) : (
+                    <span className="material-symbols-outlined text-[16px]">
+                      {modal.action === "confirmed" ? "check" : "close"}
+                    </span>
+                  )}
+                  {modal.action === "confirmed" ? "Confirm & Send" : "Cancel & Notify"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
