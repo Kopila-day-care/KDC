@@ -25,6 +25,7 @@ export default function AdminBookingsPage() {
   const [timeFilter, setTimeFilter] = useState<string>("upcoming");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [modal, setModal] = useState<ActionModal | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; parentName: string } | null>(null);
 
   const fetchBookings = useCallback(async () => {
     setLoading(true);
@@ -75,14 +76,14 @@ export default function AdminBookingsPage() {
     }
   };
 
-  const deleteBooking = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this booking?")) return;
-
-    setActionLoading(id);
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setActionLoading(deleteTarget.id);
     try {
-      const res = await fetch(`/api/bookings/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/bookings/${deleteTarget.id}`, { method: "DELETE" });
       if (res.ok) {
-        setBookings((prev) => prev.filter((b) => b.id !== id));
+        setBookings((prev) => prev.filter((b) => b.id !== deleteTarget.id));
+        setDeleteTarget(null);
       }
     } catch (err) {
       console.error("Failed to delete booking:", err);
@@ -209,7 +210,7 @@ export default function AdminBookingsPage() {
                           </button>
                         )}
                         <button
-                          onClick={() => deleteBooking(booking.id)}
+                          onClick={() => setDeleteTarget({ id: booking.id, parentName: booking.parent_name })}
                           disabled={actionLoading === booking.id}
                           className="p-1.5 rounded-lg hover:bg-error-container text-on-surface-variant hover:text-error transition-colors"
                           title="Delete"
@@ -281,6 +282,53 @@ export default function AdminBookingsPage() {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            onClick={() => !actionLoading && setDeleteTarget(null)}
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-error-container flex items-center justify-center">
+                  <span className="material-symbols-outlined text-xl text-error">delete</span>
+                </div>
+                <div>
+                  <h2 className="font-headline font-bold text-on-surface text-lg leading-tight">Delete Booking</h2>
+                  <p className="text-sm text-on-surface-variant">{deleteTarget.parentName}</p>
+                </div>
+              </div>
+              <p className="text-sm text-on-surface-variant mb-6">
+                This will permanently delete the booking. This action cannot be undone.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setDeleteTarget(null)}
+                  disabled={!!actionLoading}
+                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={!!actionLoading}
+                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-error hover:bg-error/90 transition-colors flex items-center gap-2"
+                >
+                  {actionLoading ? (
+                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                  ) : (
+                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                  )}
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Action modal */}
