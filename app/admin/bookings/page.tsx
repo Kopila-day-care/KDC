@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { Booking } from "@/lib/supabase/types";
+import { formatTime12h } from "@/lib/utils";
 
 const STATUS_OPTIONS = ["all", "pending", "confirmed", "cancelled"] as const;
 const FILTER_OPTIONS = ["upcoming", "past", "all"] as const;
@@ -169,7 +170,7 @@ export default function AdminBookingsPage() {
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-5 py-3 text-on-surface">{booking.booking_time}</td>
+                    <td className="px-5 py-3 text-on-surface">{formatTime12h(booking.booking_time)}</td>
                     <td className="px-5 py-3">
                       <div className="font-medium text-on-surface">{booking.parent_name}</div>
                       {booking.notes && (
@@ -236,7 +237,7 @@ export default function AdminBookingsPage() {
                         month: "short",
                         day: "numeric",
                       })}{" "}
-                      at {booking.booking_time}
+                      at {formatTime12h(booking.booking_time)}
                     </div>
                   </div>
                   <StatusBadge status={booking.status} />

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Booking, GalleryImage } from "@/lib/supabase/types";
+import { formatTime12h } from "@/lib/utils";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -137,7 +138,7 @@ export default function AdminDashboard() {
                       month: "short",
                       day: "numeric",
                     })}{" "}
-                    at {booking.booking_time}
+                    at {formatTime12h(booking.booking_time)}
                   </div>
                 </div>
                 <span

@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { formatTime12h } from "@/lib/utils";
 
 function esc(value: string | undefined | null): string {
   return (value ?? "")
@@ -89,7 +90,7 @@ export async function sendBookingConfirmation(booking: {
         </tr>
         <tr>
           <td style="padding:6px 12px;font-size:14px;color:#3c674b;font-weight:bold;">&#128336; Time</td>
-          <td style="padding:6px 12px;font-size:14px;color:#2e2b27;">${esc(booking.booking_time)}</td>
+          <td style="padding:6px 12px;font-size:14px;color:#2e2b27;">${esc(formatTime12h(booking.booking_time))}</td>
         </tr>
         <tr>
           <td style="padding:6px 12px;font-size:14px;color:#3c674b;font-weight:bold;">&#128205; Address</td>
@@ -152,7 +153,7 @@ export async function sendBookingNotification(booking: {
         </tr>
         <tr>
           <td style="padding:6px 12px;font-size:14px;color:#3c674b;font-weight:bold;">&#128336; Time</td>
-          <td style="padding:6px 12px;font-size:14px;color:#2e2b27;">${esc(booking.booking_time)}</td>
+          <td style="padding:6px 12px;font-size:14px;color:#2e2b27;">${esc(formatTime12h(booking.booking_time))}</td>
         </tr>
         ${booking.notes ? `
         <tr>
@@ -196,7 +197,7 @@ export async function sendBookingCancellation(booking: {
         </tr>
         <tr>
           <td style="padding:6px 12px;font-size:14px;color:#835339;font-weight:bold;">&#128336; Time</td>
-          <td style="padding:6px 12px;font-size:14px;color:#2e2b27;">${esc(booking.booking_time)}</td>
+          <td style="padding:6px 12px;font-size:14px;color:#2e2b27;">${esc(formatTime12h(booking.booking_time))}</td>
         </tr>
       </table>
 
