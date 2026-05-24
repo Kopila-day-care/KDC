@@ -271,7 +271,7 @@ export default function AdminBookingsPage() {
                     </button>
                   )}
                   <button
-                    onClick={() => deleteBooking(booking.id)}
+                    onClick={() => setDeleteTarget({ id: booking.id, parentName: booking.parent_name })}
                     disabled={actionLoading === booking.id}
                     className="text-xs px-3 py-1.5 rounded-lg text-error hover:bg-error-container transition-colors ml-auto"
                   >
