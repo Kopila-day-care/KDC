@@ -40,26 +40,22 @@ export async function PATCH(
     if (data) {
       try {
         if (status === "confirmed") {
-          sendBookingConfirmation({
+          await sendBookingConfirmation({
             parent_name: data.parent_name,
             email: data.email,
             booking_date: data.booking_date,
             booking_time: data.booking_time,
-          }).catch((err) => {
-            console.error("Failed to send booking confirmation:", err);
           });
         } else if (status === "cancelled") {
-          sendBookingCancellation({
+          await sendBookingCancellation({
             parent_name: data.parent_name,
             email: data.email,
             booking_date: data.booking_date,
             booking_time: data.booking_time,
-          }).catch((err) => {
-            console.error("Failed to send booking cancellation:", err);
           });
         }
       } catch (emailError) {
-        console.error("Failed to initiate email:", emailError);
+        console.error("Failed to send status email:", emailError);
       }
     }
 
