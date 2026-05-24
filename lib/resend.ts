@@ -69,7 +69,6 @@ export async function sendBookingConfirmation(booking: {
   email: string;
   booking_date: string;
   booking_time: string;
-  note?: string;
 }) {
   if (!resend) return;
   await resend.emails.send({
@@ -98,11 +97,6 @@ export async function sendBookingConfirmation(booking: {
         </tr>
       </table>
 
-      ${booking.note ? `
-      <div style="background:#fffbf0;border-left:4px solid #835339;border-radius:4px;padding:14px 18px;margin-bottom:20px;">
-        <p style="margin:0 0 4px;font-size:12px;color:#835339;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px;">Note from Basanti</p>
-        <p style="margin:0;font-size:15px;color:#2e2b27;line-height:1.6;">${esc(booking.note)}</p>
-      </div>` : ""}
       <p style="margin:0 0 16px;font-size:15px;color:#4a4440;line-height:1.6;">
         If you need to reschedule or have any questions, please call us at <strong>(510) 282-6653</strong> or reply to this email.
       </p>
@@ -176,7 +170,6 @@ export async function sendBookingCancellation(booking: {
   email: string;
   booking_date: string;
   booking_time: string;
-  note?: string;
 }) {
   if (!resend) return;
   await resend.emails.send({
@@ -201,11 +194,6 @@ export async function sendBookingCancellation(booking: {
         </tr>
       </table>
 
-      ${booking.note ? `
-      <div style="background:#fffbf0;border-left:4px solid #835339;border-radius:4px;padding:14px 18px;margin-bottom:20px;">
-        <p style="margin:0 0 4px;font-size:12px;color:#835339;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px;">Note from Basanti</p>
-        <p style="margin:0;font-size:15px;color:#2e2b27;line-height:1.6;">${esc(booking.note)}</p>
-      </div>` : ""}
       <p style="margin:0 0 20px;font-size:15px;color:#4a4440;line-height:1.6;">
         We&rsquo;d still love to have you visit! Feel free to book another time that works for you.
       </p>

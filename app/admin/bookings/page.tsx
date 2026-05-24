@@ -12,7 +12,6 @@ interface ActionModal {
   bookingId: string;
   action: "confirmed" | "cancelled";
   parentName: string;
-  note: string;
 }
 
 export default function AdminBookingsPage() {
@@ -48,7 +47,7 @@ export default function AdminBookingsPage() {
   }, [fetchBookings]);
 
   const openModal = (booking: Booking, action: "confirmed" | "cancelled") => {
-    setModal({ bookingId: booking.id, action, parentName: booking.parent_name, note: "" });
+    setModal({ bookingId: booking.id, action, parentName: booking.parent_name });
   };
 
   const submitAction = async () => {
@@ -58,7 +57,7 @@ export default function AdminBookingsPage() {
       const res = await fetch(`/api/bookings/${modal.bookingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: modal.action, note: modal.note }),
+        body: JSON.stringify({ status: modal.action }),
       });
       if (res.ok) {
         setBookings((prev) =>
@@ -309,25 +308,6 @@ export default function AdminBookingsPage() {
                   </h2>
                   <p className="text-sm text-on-surface-variant">{modal.parentName}</p>
                 </div>
-              </div>
-
-              {/* Note textarea */}
-              <div className="mb-5">
-                <label className="block text-sm font-medium text-on-surface mb-1.5">
-                  Message to parent
-                  <span className="text-on-surface-variant font-normal ml-1">(optional)</span>
-                </label>
-                <textarea
-                  rows={4}
-                  value={modal.note}
-                  onChange={(e) => setModal({ ...modal, note: e.target.value })}
-                  placeholder={
-                    modal.action === "confirmed"
-                      ? "e.g. Please arrive 5 minutes early. We look forward to meeting you!"
-                      : "e.g. Sorry, we need to reschedule — please book another time that works for you."
-                  }
-                  className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/50 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                />
               </div>
 
               {/* Actions */}
