@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { unstable_noStore as noStore } from "next/cache";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
 import { createServiceClient } from "@/lib/supabase/server";
 
-export const dynamic = "force-dynamic"; // Always fetch fresh gallery data
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Gallery | Kopila Day Care & Preschool",
@@ -39,11 +40,14 @@ const CATEGORY_ICONS: Record<string, string> = {
 };
 
 export default async function GalleryPage() {
+  noStore();
   const supabase = createServiceClient();
-  const { data: dbImages } = await supabase
+  const { data: dbImages, error: dbError } = await supabase
     .from("gallery_images")
     .select("*")
     .order("sort_order", { ascending: true });
+
+  if (dbError) console.error("[GalleryPage] Supabase error:", dbError);
 
   const images = (dbImages || []).map((img, i) => {
     const colors = CATEGORY_COLORS[img.category] || CATEGORY_COLORS.general;
