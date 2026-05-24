@@ -78,7 +78,7 @@ export default function HomePage() {
       </section>
 
       {/* Section: YouTube Video — A Peek Inside Kopila */}
-      <section className="py-20 px-8 bg-surface overflow-hidden">
+      <section className="pt-10 pb-16 px-8 bg-surface overflow-hidden">
         <div className="max-w-4xl mx-auto">
           {/* Decorative header */}
           <div className="text-center mb-10">
