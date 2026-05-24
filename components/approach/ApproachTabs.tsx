@@ -7,6 +7,7 @@ const SLIDE_DURATION = 15000;
 const tabs = [
   { id: "play", label: "Play First", icon: "sports_esports" },
   { id: "curriculum", label: "Curriculum", icon: "menu_book" },
+  { id: "social", label: "Social & Cognitive", icon: "psychology" },
   { id: "care", label: "Fresh Food & Loving Care", icon: "favorite" },
 ];
 
@@ -81,7 +82,8 @@ export default function ApproachTabs() {
         <div key={tabs[activeIndex].id}>
           {activeIndex === 0 && <PlayFirstContent />}
           {activeIndex === 1 && <CurriculumContent />}
-          {activeIndex === 2 && <FreshFoodAndCareContent />}
+          {activeIndex === 2 && <SocialCognitiveContent />}
+          {activeIndex === 3 && <FreshFoodAndCareContent />}
         </div>
 
         {/* Dot indicators */}
@@ -234,6 +236,75 @@ function CurriculumContent() {
           alt="Children engaged in a learning activity"
           src="/images/play7.jpg"
         />
+      </div>
+    </div>
+  );
+}
+
+function SocialCognitiveContent() {
+  return (
+    <div className="relative rounded-2xl overflow-hidden min-h-[420px]">
+      {/* Background photo */}
+      <img
+        src="/images/SOCO.jpg"
+        alt="Children developing social and cognitive skills at Kopila"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-primary/70" />
+      {/* Content */}
+      <div className="relative z-10 grid md:grid-cols-2 gap-10 p-10 md:p-14 items-center">
+        <div className="space-y-6">
+          <h2 className="font-display text-on-primary text-4xl">
+            Social &amp; Cognitive Growth
+          </h2>
+          <p className="text-on-primary/90 text-lg leading-relaxed">
+            At Kopila, every interaction is a learning moment. We nurture each
+            child&apos;s ability to think, communicate, and connect — building
+            the social-emotional foundation they&apos;ll carry for life.
+          </p>
+        </div>
+        <ul className="space-y-5">
+          <li className="flex items-start gap-4">
+            <span className="material-symbols-outlined text-primary bg-on-primary p-2 rounded-full shrink-0">
+              check_circle
+            </span>
+            <div>
+              <span className="font-bold block text-on-primary">
+                Friendship &amp; Cooperation
+              </span>
+              <span className="text-on-primary/80 text-sm">
+                Guided group activities that teach sharing, turn-taking, and empathy.
+              </span>
+            </div>
+          </li>
+          <li className="flex items-start gap-4">
+            <span className="material-symbols-outlined text-primary bg-on-primary p-2 rounded-full shrink-0">
+              check_circle
+            </span>
+            <div>
+              <span className="font-bold block text-on-primary">
+                Problem-Solving Play
+              </span>
+              <span className="text-sm text-on-primary/80">
+                Puzzles, building, and open-ended challenges that grow critical thinking.
+              </span>
+            </div>
+          </li>
+          <li className="flex items-start gap-4">
+            <span className="material-symbols-outlined text-primary bg-on-primary p-2 rounded-full shrink-0">
+              check_circle
+            </span>
+            <div>
+              <span className="font-bold block text-on-primary">
+                Language &amp; Expression
+              </span>
+              <span className="text-sm text-on-primary/80">
+                Circle time, storytelling, and songs that build vocabulary and confidence.
+              </span>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   );
