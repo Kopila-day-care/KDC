@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import ContactForm from "@/components/contact/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact Us | Kopila Day Care & Preschool",
@@ -31,7 +30,7 @@ export default function ContactPage() {
       {/* Bento Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Contact Details & Map */}
-        <div className="lg:col-span-5 space-y-8">
+        <div className="lg:col-span-7 space-y-8">
           {/* Contact Info Card */}
           <section className="bg-surface-container-low p-10 rounded-lg relative overflow-hidden group">
             <div className="relative z-10 space-y-8">
@@ -134,9 +133,8 @@ export default function ContactPage() {
 
         </div>
 
-        {/* Right Column: Contact Form & Illustrations */}
-        <div className="lg:col-span-7 space-y-8">
-          {/* Action Buttons & Illustrations */}
+        {/* Right Column: Book a Tour CTA */}
+        <div className="lg:col-span-5 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center bg-secondary-fixed p-8 rounded-lg relative overflow-hidden">
             <div className="space-y-4 relative z-10">
               <Link
@@ -150,7 +148,6 @@ export default function ContactPage() {
               </Link>
             </div>
             <div className="flex justify-center md:justify-end items-end h-40 relative">
-              {/* Abstract Animal Representation with Icons */}
               <div className="flex gap-4 items-end">
                 <div className="w-24 h-32 bg-primary-container rounded-t-full relative flex items-center justify-center">
                   <span className="material-symbols-outlined text-5xl text-on-primary-container">
@@ -165,9 +162,6 @@ export default function ContactPage() {
               </div>
             </div>
           </div>
-
-          {/* Contact Form Container */}
-          <ContactForm />
         </div>
       </div>
 
