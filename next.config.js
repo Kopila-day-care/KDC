@@ -23,8 +23,8 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       // Images: own origin, data URIs, Supabase storage, Google placeholder images
       "img-src 'self' data: blob: https://oguvjtcvonnjvbechkjq.supabase.co https://lh3.googleusercontent.com",
-      // Google Maps iframes on the contact page
-      "frame-src https://www.google.com https://maps.google.com",
+      // Google Maps iframes on the contact page + YouTube video embed
+      "frame-src https://www.google.com https://maps.google.com https://www.youtube-nocookie.com",
       // XHR/fetch: own API + Supabase
       "connect-src 'self' https://oguvjtcvonnjvbechkjq.supabase.co",
     ].join("; "),

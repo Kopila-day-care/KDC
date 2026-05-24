@@ -77,6 +77,52 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Section: YouTube Video — A Peek Inside Kopila */}
+      <section className="py-20 px-8 bg-surface overflow-hidden">
+        <div className="max-w-4xl mx-auto">
+          {/* Decorative header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-3 bg-primary-container/30 px-6 py-2 rounded-full mb-6">
+              <span className="material-symbols-outlined text-primary">play_circle</span>
+              <span className="font-accent text-primary text-lg">A little peek inside</span>
+            </div>
+            <h2 className="font-handwritten text-5xl md:text-7xl font-bold text-secondary leading-none mb-3">
+              Come See the Magic
+            </h2>
+            <p className="font-body text-on-surface-variant text-lg max-w-xl mx-auto">
+              Words can only say so much — watch how our little learners spend their day at Kopila.
+            </p>
+          </div>
+
+          {/* Video frame */}
+          <div className="relative">
+            {/* Decorative behind-frame blobs */}
+            <div className="absolute -top-6 -left-6 w-32 h-32 bg-secondary-container rounded-full opacity-40 blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-6 -right-6 w-40 h-40 bg-primary-container rounded-full opacity-40 blur-2xl pointer-events-none" />
+
+            {/* Outer decorative frame */}
+            <div className="relative bg-surface-container-low p-4 rounded-2xl shadow-xl rotate-1 hover:rotate-0 transition-transform duration-500 border-4 border-white">
+              {/* Corner flower buds */}
+              <span className="absolute -top-4 -left-4 material-symbols-outlined text-3xl text-secondary bg-surface rounded-full p-1 shadow-md z-10">local_florist</span>
+              <span className="absolute -top-4 -right-4 material-symbols-outlined text-3xl text-primary bg-surface rounded-full p-1 shadow-md z-10">local_florist</span>
+              <span className="absolute -bottom-4 -left-4 material-symbols-outlined text-3xl text-tertiary bg-surface rounded-full p-1 shadow-md z-10">local_florist</span>
+              <span className="absolute -bottom-4 -right-4 material-symbols-outlined text-3xl text-secondary bg-surface rounded-full p-1 shadow-md z-10">local_florist</span>
+
+              {/* YouTube iframe */}
+              <div className="aspect-video rounded-xl overflow-hidden shadow-inner">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/uthP85DqNdk?rel=0&modestbranding=1"
+                  title="A day at Kopila Day Care"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Section 2: Fresh Healthy Meals */}
       <section className="bg-surface-container-low py-24 relative overflow-hidden">
         <div className="max-w-5xl mx-auto px-8 text-center relative z-10">
