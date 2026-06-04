@@ -103,6 +103,13 @@ const src = fs.readFileSync(
   "utf-8"
 );
 
+// Strip `subject:` lines before checking raw interpolation — email subjects are
+// plain text (not HTML), so raw interpolation there is not an XSS risk.
+const htmlSrc = src
+  .split("\n")
+  .filter((line) => !line.trim().startsWith("subject:"))
+  .join("\n");
+
 const userDataVars = [
   "booking.parent_name",
   "booking.email",
@@ -117,6 +124,12 @@ const userDataVars = [
   "inquiry.message",
 ];
 
+// Some vars are formatted before escaping (e.g. formatTime12h).
+// These are still correctly escaped — the pattern just has a wrapper call inside.
+const wrappedEscapePatterns: Partial<Record<string, RegExp>> = {
+  "booking.booking_time": /esc\(formatTime12h\(booking\.booking_time\)\)/,
+};
+
 describe("Email template — all user-controlled fields are escaped in resend.ts", () => {
   for (const varName of userDataVars) {
     it(`${varName} is never interpolated raw (always wrapped in esc())`, () => {
@@ -125,7 +138,8 @@ describe("Email template — all user-controlled fields are escaped in resend.ts
         `\\$\\{${varName.replace(".", "\\.")}\\}`,
         "g"
       );
-      const rawMatches = [...src.matchAll(rawPattern)];
+      // Check only HTML body lines — subject: lines are plain text, not HTML
+      const rawMatches = [...htmlSrc.matchAll(rawPattern)];
       expect(
         rawMatches.length,
         `${varName} appears without esc() wrapping — XSS risk`
@@ -133,6 +147,14 @@ describe("Email template — all user-controlled fields are escaped in resend.ts
     });
 
     it(`${varName} appears with esc() at least once`, () => {
+      const wrappedPattern = wrappedEscapePatterns[varName];
+      if (wrappedPattern) {
+        expect(
+          wrappedPattern.test(src),
+          `${varName} is never escaped — may be missing from email template`
+        ).toBe(true);
+        return;
+      }
       const escapedPattern = new RegExp(
         `esc\\(${varName.replace(".", "\\.")}\\)`,
         "g"
